@@ -1,0 +1,48 @@
+version: '3.7'
+services:
+  backend:
+    image: dextercdalogdog/test-core
+    container_name: backend
+    ports:
+      - 3000:3000
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    networks:
+      - redisnet
+    expose:
+      - 6379
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prom_data:/prometheus
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 7070:7070
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+    volumes:
+      - ./grafana:/etc/grafana/provisioning/datasources
+  proxy:
+    container_name: nginx-proxy
+    build: proxy
+    ports:
+      - 80:80
+    depends_on: 
+      - backend
+volumes:
+  prom_data:
+networks:
+  redisnet:
