@@ -2,13 +2,12 @@ version: '3.7'
 services:
   backend:
     image: dextercdalogdog/test-core:dev
-    container_name: backend
-    ports:
-      - 8080:3000
   redis:
     image: redis:alpine
     container_name: redis
     restart: always
+    environment:
+      - TZ=Asia/Manila
     networks:
       - redisnet
     expose:
@@ -18,6 +17,8 @@ services:
     container_name: prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
+    environment:
+      - TZ=Asia/Manila
     ports:
       - 9090:9090
     restart: unless-stopped
@@ -30,6 +31,7 @@ services:
       - 7070:3000
     restart: unless-stopped
     environment:
+      - TZ=Asia/Manila
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=grafana
     volumes:
@@ -37,6 +39,8 @@ services:
   proxy:
     container_name: nginx-proxy
     build: proxy
+    environment:
+      - TZ=Asia/Manila
     ports:
       - 80:80
     depends_on: 
